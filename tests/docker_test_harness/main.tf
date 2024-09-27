@@ -11,9 +11,11 @@ resource "docker_image" "mssql" {
 resource "docker_container" "mssql" {
   image = docker_image.mssql.image_id
   name  = "terraform-mssql-acc-test"
+  wait  = true
 
   env = [
     "ACCEPT_EULA=Y",
+    "MSSQL_PID=${var.mssql_pid}",
     "MSSQL_SA_PASSWORD=${random_password.mssql.result}"
   ]
 
@@ -21,12 +23,14 @@ resource "docker_container" "mssql" {
     internal = 1433
     external = 11433
   }
-}
 
-resource "time_sleep" "mssql_start" {
-  create_duration = "5s"
+  healthcheck {
+    test = [
+      "CMD", "/opt/mssql-tools18/bin/sqlcmd", "-C", "-U", "sa", "-P", "${random_password.mssql.result}", "-Q", "SELECT 1;"
+    ]
 
-  triggers = {
-    container = docker_container.mssql.id
+    start_period = "3s"
+    interval     = "1s"
+    retries      = 5
   }
 }
