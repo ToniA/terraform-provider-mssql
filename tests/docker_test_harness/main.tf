@@ -31,6 +31,6 @@ resource "docker_container" "mssql" {
 
     start_period = "3s"
     interval     = "1s"
-    retries      = 5
+    retries      = 10
   }
 }
