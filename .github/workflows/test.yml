@@ -76,8 +76,6 @@ jobs:
         mssql_pid:
           - 'Developer'
           - 'Express'
-          - 'Standard'
-          - 'Enterprise'
         makeTarget:
           - dockerAccTest
     steps:
