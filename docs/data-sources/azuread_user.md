@@ -42,5 +42,3 @@ output "user_object_id" {
 ### Read-Only
 
 - `id` (String) `<database_id>/<user_id>`. User ID can be retrieved using `sys.database_principals` view.
-
-

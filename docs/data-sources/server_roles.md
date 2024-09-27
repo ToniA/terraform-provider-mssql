@@ -36,5 +36,3 @@ Read-Only:
 - `id` (String) Role principal ID.
 - `name` (String) Role name. Must follow [Regular Identifiers rules](https://docs.microsoft.com/en-us/sql/relational-databases/databases/database-identifiers#rules-for-regular-identifiers) and cannot be longer than 128 chars.
 - `owner_id` (String) ID of another server role or login owning this role. Can be retrieved using `mssql_server_role` or `mssql_sql_login`.
-
-

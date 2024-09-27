@@ -35,5 +35,3 @@ data "mssql_schema" "by_name" {
 ### Read-Only
 
 - `owner_id` (String) ID of database role or user owning this schema. Can be retrieved using `mssql_database_role`, `mssql_sql_user`, `mssql_azuread_user` or `mssql_azuread_service_principal`
-
-

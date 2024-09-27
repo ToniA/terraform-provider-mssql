@@ -43,5 +43,3 @@ Read-Only:
 - `id` (String) ID of the member principal
 - `name` (String) Name of the server principal
 - `type` (String) One of: `SQL_LOGIN`, `SERVER_ROLE`
-
-

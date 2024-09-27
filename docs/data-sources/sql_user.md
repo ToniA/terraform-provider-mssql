@@ -42,5 +42,3 @@ output "id" {
 
 - `id` (String) `<database_id>/<user_id>`. User ID can be retrieved using `SELECT DATABASE_PRINCIPAL_ID('<user_name>')`.
 - `login_id` (String) SID of SQL login. Can be retrieved using `mssql_sql_login` or `SELECT SUSER_SID('<login_name>')`.
-
-

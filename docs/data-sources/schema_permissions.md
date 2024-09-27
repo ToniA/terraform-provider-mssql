@@ -57,5 +57,3 @@ Read-Only:
 
 - `permission` (String) Name of schema SQL permission. For full list of supported permissions, see [docs](https://learn.microsoft.com/en-us/sql/t-sql/statements/grant-schema-permissions-transact-sql?view=azuresqldb-current#remarks)
 - `with_grant_option` (Boolean) When set to `true`, `principal_id` will be allowed to grant the `permission` to other principals.
-
-

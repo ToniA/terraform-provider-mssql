@@ -47,5 +47,3 @@ Read-Only:
 - `id` (String) `<database_id>/<role_id>`. Role ID can be retrieved using `SELECT DATABASE_PRINCIPAL_ID('<role_name>')`
 - `name` (String) Role name. Must follow [Regular Identifiers rules](https://docs.microsoft.com/en-us/sql/relational-databases/databases/database-identifiers#rules-for-regular-identifiers) and cannot be longer than 128 chars.
 - `owner_id` (String) ID of another database role or user owning this role. Can be retrieved using `mssql_database_role` or `mssql_sql_user`.
-
-

@@ -42,5 +42,3 @@ output "column_names" {
 
 - `id` (String) Used only internally by Terraform. Always set to `query`
 - `result` (List of Map of String) Results of the SQL query, represented as list of maps, where the map key corresponds to column name and the value is the value of column in given row.
-
-

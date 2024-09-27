@@ -42,5 +42,3 @@ output "db_id" {
 - `id` (String) Login SID. Can be retrieved using `SELECT SUSER_SID('<login_name>')`.
 - `must_change_password` (Boolean) When true, password change will be forced on first logon.
 - `principal_id` (String) ID used to reference SQL Login in other resources, e.g. `server_role`. Can be retrieved from `sys.sql_logins`.
-
-

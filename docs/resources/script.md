@@ -55,5 +55,3 @@ SQL
 ### Read-Only
 
 - `id` (String) Used only internally by Terraform. Always set to `script`
-
-

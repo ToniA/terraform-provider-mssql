@@ -47,5 +47,3 @@ Read-Only:
 - `id` (String) `<database_id>/<schema_id>`. Schema ID can be retrieved using `SELECT SCHEMA_ID('<schema_name>')`.
 - `name` (String) Schema name.
 - `owner_id` (String) ID of database role or user owning this schema. Can be retrieved using `mssql_database_role`, `mssql_sql_user`, `mssql_azuread_user` or `mssql_azuread_service_principal`
-
-

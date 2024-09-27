@@ -37,5 +37,3 @@ output "db_collation" {
 
 - `collation` (String) Default collation name. Can be either a Windows collation name or a SQL collation name.
 - `id` (String) Database ID. Can be retrieved using `SELECT DB_ID('<db_name>')`.
-
-
