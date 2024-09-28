@@ -3,6 +3,7 @@ package database
 import (
 	"database/sql"
 	"fmt"
+
 	"github.com/PGSSoft/terraform-provider-mssql/internal/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
@@ -31,7 +32,12 @@ resource "mssql_database" %[1]q {
 	var checkCollation = func(dbName string, expected string) resource.TestCheckFunc {
 		return testCtx.SqlCheckMaster(func(db *sql.DB) error {
 			var collation string
-			err := db.QueryRow("SELECT collation_name FROM sys.databases WHERE name = @p1", dbName).Scan(&collation)
+			_, err := db.Exec(fmt.Sprintf("USE [%s]", dbName))
+			testCtx.Assert.NoError(err)
+			if err != nil {
+				return err
+			}
+			err = db.QueryRow("SELECT collation_name FROM sys.databases WHERE name = @p1", dbName).Scan(&collation)
 			testCtx.Assert.Equal(expected, collation)
 			return err
 		})
@@ -43,6 +49,8 @@ resource "mssql_database" %[1]q {
 				Config: newDatabaseResource("test", "new_db"),
 				Check: resource.ComposeTestCheckFunc(
 					testCtx.SqlCheckMaster(func(db *sql.DB) error {
+						_, err := db.Exec("USE [new_db]")
+						testCtx.Assert.NoError(err)
 						return db.QueryRow("SELECT database_id, collation_name FROM sys.databases WHERE name = 'new_db'").Scan(&dbId, &dbCollation)
 					}),
 					resource.ComposeAggregateTestCheckFunc(
