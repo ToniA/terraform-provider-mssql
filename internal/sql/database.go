@@ -285,15 +285,8 @@ func (db *database) getSettingsRaw(ctx context.Context) (DatabaseSettings, error
 		return settings, fmt.Errorf("failed to fetch database name: %w", err)
 	}
 
-	_, err = conn.
-		ExecContext(ctx, fmt.Sprintf("USE [%s]", settings.Name))
-
-	if err != nil {
-		return settings, fmt.Errorf("failed to switch to database: %w", err)
-	}
-
 	err = conn.
-		QueryRowContext(ctx, "SELECT [name], collation_name FROM sys.databases WHERE [database_id] = @p1", db.id).
+		QueryRowContext(ctx, fmt.Sprintf("USE [%s]; SELECT [name], collation_name FROM sys.databases WHERE [database_id] = @p1", settings.Name), db.id).
 		Scan(&settings.Name, &settings.Collation)
 
 	return settings, err
