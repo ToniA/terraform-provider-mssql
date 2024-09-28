@@ -18,3 +18,5 @@ terraform.tfstate*
 .vscode/
 local.env
 .terraform/
+
+dist/
