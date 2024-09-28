@@ -4,8 +4,9 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"github.com/PGSSoft/terraform-provider-mssql/internal/utils"
 	"strings"
+
+	"github.com/PGSSoft/terraform-provider-mssql/internal/utils"
 )
 
 const NullDatabaseId = DatabaseId(-1)
@@ -114,7 +115,7 @@ func (db *database) Exists(ctx context.Context) bool {
 	case nil:
 		return true
 	default:
-		utils.AddError(ctx, "Could not retrieve DB info", err)
+		utils.AddError(ctx, "Could not retrieve DB info for 'Exists'", err)
 		return false
 	}
 }
@@ -123,7 +124,7 @@ func (db *database) GetSettings(ctx context.Context) DatabaseSettings {
 	settings, err := db.getSettingsRaw(ctx)
 
 	if err != nil {
-		utils.AddError(ctx, "Could not retrieve DB info", err)
+		utils.AddError(ctx, "Could not retrieve DB info for 'GetSettings'", err)
 	}
 
 	return settings
@@ -273,9 +274,28 @@ func (db *database) RevokePermission(ctx context.Context, id GenericDatabasePrin
 
 func (db *database) getSettingsRaw(ctx context.Context) (DatabaseSettings, error) {
 	var settings DatabaseSettings
-	err := db.conn.getSqlConnection(ctx).
+
+	conn := db.conn.getSqlConnection(ctx)
+
+	err := conn.
+		QueryRowContext(ctx, "SELECT [name] FROM sys.databases WHERE [database_id] = @p1", db.id).
+		Scan(&settings.Name)
+
+	if err != nil {
+		return settings, fmt.Errorf("failed to fetch database name: %w", err)
+	}
+
+	_, err = conn.
+		ExecContext(ctx, fmt.Sprintf("USE [%s]", settings.Name))
+
+	if err != nil {
+		return settings, fmt.Errorf("failed to switch to database: %w", err)
+	}
+
+	err = conn.
 		QueryRowContext(ctx, "SELECT [name], collation_name FROM sys.databases WHERE [database_id] = @p1", db.id).
 		Scan(&settings.Name, &settings.Collation)
+
 	return settings, err
 }
 

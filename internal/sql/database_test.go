@@ -3,10 +3,11 @@ package sql
 import (
 	"database/sql"
 	"errors"
-	"github.com/DATA-DOG/go-sqlmock"
-	"github.com/stretchr/testify/suite"
 	"math/rand"
 	"testing"
+
+	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/stretchr/testify/suite"
 )
 
 func TestDatabaseTestSuite(t *testing.T) {
@@ -67,18 +68,25 @@ func (s *DatabaseTestSuite) TestGetDatabasesError() {
 }
 
 func (s *DatabaseTestSuite) TestExistsNoRows() {
+	s.expectDatabaseNameQuery().WillReturnRows(newRows("name").AddRow("test_db"))
+	s.expectDatabaseUseQuery("test_db").WillReturnResult(sqlmock.NewResult(0, 0))
 	s.expectDatabaseSettingQuery().WillReturnError(sql.ErrNoRows)
 
 	s.False(s.db.Exists(s.ctx))
 }
 
 func (s *DatabaseTestSuite) TestExistsSingleRow() {
+	s.expectDatabaseNameQuery().WillReturnRows(newRows("name").AddRow("test_db"))
+	s.expectDatabaseUseQuery("test_db").WillReturnResult(sqlmock.NewResult(0, 0))
 	s.expectDatabaseSettingQuery().WillReturnRows(newRows("name", "collation_name").AddRow("name", "collation"))
 
 	s.True(s.db.Exists(s.ctx))
 }
 
 func (s *DatabaseTestSuite) TestExistsError() {
+	s.expectDatabaseNameQuery().WillReturnRows(newRows("name").AddRow("test_db"))
+	s.expectDatabaseUseQuery("test_db").WillReturnResult(sqlmock.NewResult(0, 0))
+
 	err := errors.New("test_error")
 	s.expectDatabaseSettingQuery().WillReturnError(err)
 
@@ -112,6 +120,8 @@ func (s *DatabaseTestSuite) TestCreteDatabaseWithCollation() {
 
 func (s *DatabaseTestSuite) TestGetSettings() {
 	expSettings := DatabaseSettings{Name: "test_db_name", Collation: "test_collation"}
+	s.expectDatabaseNameQuery().WillReturnRows(newRows("name").AddRow("test_db"))
+	s.expectDatabaseUseQuery("test_db").WillReturnResult(sqlmock.NewResult(0, 0))
 	s.expectDatabaseSettingQuery().
 		WithArgs(s.db.id).
 		WillReturnRows(newRows("name", "collation_name").AddRow(expSettings.Name, expSettings.Collation))
@@ -122,6 +132,9 @@ func (s *DatabaseTestSuite) TestGetSettings() {
 }
 
 func (s *DatabaseTestSuite) TestGetSettingsError() {
+	s.expectDatabaseNameQuery().WillReturnRows(newRows("name").AddRow("test_db"))
+	s.expectDatabaseUseQuery("test_db").WillReturnResult(sqlmock.NewResult(0, 0))
+
 	err := errors.New("test_error")
 	s.expectDatabaseSettingQuery().WithArgs(s.db.id).WillReturnError(err)
 
@@ -133,6 +146,8 @@ func (s *DatabaseTestSuite) TestGetSettingsError() {
 func (s *DatabaseTestSuite) TestRename() {
 	oldSettings := DatabaseSettings{Name: "old_db_name"}
 	const newName = "new_db_name"
+	s.expectDatabaseNameQuery().WillReturnRows(newRows("name").AddRow("test_db"))
+	s.expectDatabaseUseQuery("test_db").WillReturnResult(sqlmock.NewResult(0, 0))
 	s.expectDatabaseSettingQuery().WithArgs(s.db.id).WillReturnRows(newRows("name", "collation_name").AddRow(oldSettings.Name, oldSettings.Collation))
 	expectExactExec(s.mock, "ALTER DATABASE [%s] MODIFY NAME = %s", oldSettings.Name, newName).WillReturnResult(sqlmock.NewResult(0, 1))
 
@@ -142,6 +157,8 @@ func (s *DatabaseTestSuite) TestRename() {
 func (s *DatabaseTestSuite) TestSetCollation() {
 	const dbName = "test_db_name"
 	const newCollation = "test_db_new_collation"
+	s.expectDatabaseNameQuery().WillReturnRows(newRows("name").AddRow("test_db"))
+	s.expectDatabaseUseQuery("test_db").WillReturnResult(sqlmock.NewResult(0, 0))
 	s.expectDatabaseSettingQuery().WithArgs(s.db.id).WillReturnRows(newRows("name", "collation_name").AddRow(dbName, ""))
 	expectExactExec(s.mock, "ALTER DATABASE [%s] COLLATE %s", dbName, newCollation).WillReturnResult(sqlmock.NewResult(0, 1))
 
@@ -150,6 +167,8 @@ func (s *DatabaseTestSuite) TestSetCollation() {
 
 func (s *DatabaseTestSuite) TestDrop() {
 	const dbName = "test_db_name"
+	s.expectDatabaseNameQuery().WillReturnRows(newRows("name").AddRow("test_db"))
+	s.expectDatabaseUseQuery("test_db").WillReturnResult(sqlmock.NewResult(0, 0))
 	s.expectDatabaseSettingQuery().WithArgs(s.db.id).WillReturnRows(newRows("name", "collation_name").AddRow(dbName, ""))
 	expectExactExec(s.mock, "DROP DATABASE [%s]", dbName).WillReturnResult(sqlmock.NewResult(0, 1))
 
@@ -158,6 +177,8 @@ func (s *DatabaseTestSuite) TestDrop() {
 
 func (s *DatabaseTestSuite) TestQuery() {
 	const dbName = "test_db_name"
+	s.expectDatabaseNameQuery().WillReturnRows(newRows("name").AddRow("test_db"))
+	s.expectDatabaseUseQuery("test_db").WillReturnResult(sqlmock.NewResult(0, 0))
 	s.expectDatabaseSettingQuery().WithArgs(s.db.id).WillReturnRows(newRows("name", "collation_name").AddRow(dbName, ""))
 	rows := newRows("col_x", "col_y").AddRow(1, "test").AddRow("bar", true)
 	expectExactQuery(s.mock, "TEST QUERY").WillReturnRows(rows)
@@ -172,6 +193,8 @@ func (s *DatabaseTestSuite) TestQuery() {
 }
 
 func (s *DatabaseTestSuite) TestQueryConnectionFailure() {
+	s.expectDatabaseNameQuery().WillReturnRows(newRows("name").AddRow("test_db"))
+	s.expectDatabaseUseQuery("test_db").WillReturnResult(sqlmock.NewResult(0, 0))
 	s.expectDatabaseSettingQuery().WithArgs(s.db.id).WillReturnError(errors.New("test error"))
 
 	res := s.db.Query(s.ctx, "TEST QUERY")
@@ -182,6 +205,8 @@ func (s *DatabaseTestSuite) TestQueryConnectionFailure() {
 
 func (s *DatabaseTestSuite) TestGetPermissions() {
 	const dbName = "test_db_name"
+	s.expectDatabaseNameQuery().WillReturnRows(newRows("name").AddRow("test_db"))
+	s.expectDatabaseUseQuery("test_db").WillReturnResult(sqlmock.NewResult(0, 0))
 	s.expectDatabaseSettingQuery().WithArgs(s.db.id).WillReturnRows(newRows("name", "collation_name").AddRow(dbName, ""))
 	rows := newRows("permission_name", "state").AddRow("TEST PERM1", "W").AddRow("TEST PERM2", "G")
 	expectExactQuery(s.mock, "SELECT [permission_name], [state] FROM sys.database_permissions WHERE [class] = 0 AND [state] IN ('G', 'W') AND [grantee_principal_id] = @p1").
@@ -200,7 +225,11 @@ func (s *DatabaseTestSuite) TestGetPermissions() {
 }
 
 func (s *DatabaseTestSuite) TestGrantPermission() {
+	s.expectDatabaseNameQuery().WillReturnRows(newRows("name").AddRow("test_db"))
+	s.expectDatabaseUseQuery("test_db").WillReturnResult(sqlmock.NewResult(0, 0))
 	s.expectCurrentDatabaseSettingsQuery()
+	s.expectDatabaseNameQuery().WillReturnRows(newRows("name").AddRow("test_db"))
+	s.expectDatabaseUseQuery("test_db").WillReturnResult(sqlmock.NewResult(0, 0))
 	s.expectCurrentDatabaseSettingsQuery()
 	s.expectUserNameQuery(144, "test_principal")
 	expectExactExec(s.mock, "GRANT TEST PERMISSION TO [test_principal]").WillReturnResult(sqlmock.NewResult(0, 1))
@@ -209,7 +238,11 @@ func (s *DatabaseTestSuite) TestGrantPermission() {
 }
 
 func (s *DatabaseTestSuite) TestGrantPermissionWithGrantOption() {
+	s.expectDatabaseNameQuery().WillReturnRows(newRows("name").AddRow("test_db"))
+	s.expectDatabaseUseQuery("test_db").WillReturnResult(sqlmock.NewResult(0, 0))
 	s.expectCurrentDatabaseSettingsQuery()
+	s.expectDatabaseNameQuery().WillReturnRows(newRows("name").AddRow("test_db"))
+	s.expectDatabaseUseQuery("test_db").WillReturnResult(sqlmock.NewResult(0, 0))
 	s.expectCurrentDatabaseSettingsQuery()
 	s.expectUserNameQuery(246, "test_principal2")
 	expectExactExec(s.mock, "GRANT TEST PERMISSION TO [test_principal2] WITH GRANT OPTION").WillReturnResult(sqlmock.NewResult(0, 1))
@@ -218,7 +251,11 @@ func (s *DatabaseTestSuite) TestGrantPermissionWithGrantOption() {
 }
 
 func (s *DatabaseTestSuite) TestUpdatePermissionAddGrantOption() {
+	s.expectDatabaseNameQuery().WillReturnRows(newRows("name").AddRow("test_db"))
+	s.expectDatabaseUseQuery("test_db").WillReturnResult(sqlmock.NewResult(0, 0))
 	s.expectCurrentDatabaseSettingsQuery()
+	s.expectDatabaseNameQuery().WillReturnRows(newRows("name").AddRow("test_db"))
+	s.expectDatabaseUseQuery("test_db").WillReturnResult(sqlmock.NewResult(0, 0))
 	s.expectCurrentDatabaseSettingsQuery()
 	s.expectUserNameQuery(156, "modified_principal")
 	expectExactExec(s.mock, "GRANT TEST PERMISSION TO [modified_principal] WITH GRANT OPTION").WillReturnResult(sqlmock.NewResult(0, 1))
@@ -227,7 +264,11 @@ func (s *DatabaseTestSuite) TestUpdatePermissionAddGrantOption() {
 }
 
 func (s *DatabaseTestSuite) TestUpdatePermissionRevokeGrantOption() {
+	s.expectDatabaseNameQuery().WillReturnRows(newRows("name").AddRow("test_db"))
+	s.expectDatabaseUseQuery("test_db").WillReturnResult(sqlmock.NewResult(0, 0))
 	s.expectCurrentDatabaseSettingsQuery()
+	s.expectDatabaseNameQuery().WillReturnRows(newRows("name").AddRow("test_db"))
+	s.expectDatabaseUseQuery("test_db").WillReturnResult(sqlmock.NewResult(0, 0))
 	s.expectCurrentDatabaseSettingsQuery()
 	s.expectUserNameQuery(156, "modified_principal")
 	expectExactExec(s.mock, "REVOKE GRANT OPTION FOR TEST PERMISSION TO [modified_principal]").WillReturnResult(sqlmock.NewResult(0, 1))
@@ -236,7 +277,11 @@ func (s *DatabaseTestSuite) TestUpdatePermissionRevokeGrantOption() {
 }
 
 func (s *DatabaseTestSuite) TestRevokePermission() {
+	s.expectDatabaseNameQuery().WillReturnRows(newRows("name").AddRow("test_db"))
+	s.expectDatabaseUseQuery("test_db").WillReturnResult(sqlmock.NewResult(0, 0))
 	s.expectCurrentDatabaseSettingsQuery()
+	s.expectDatabaseNameQuery().WillReturnRows(newRows("name").AddRow("test_db"))
+	s.expectDatabaseUseQuery("test_db").WillReturnResult(sqlmock.NewResult(0, 0))
 	s.expectCurrentDatabaseSettingsQuery()
 	s.expectUserNameQuery(758, "modified_principal")
 	expectExactExec(s.mock, "REVOKE TEST PERMISSION TO [modified_principal] CASCADE").WillReturnResult(sqlmock.NewResult(0, 1))
@@ -246,6 +291,14 @@ func (s *DatabaseTestSuite) TestRevokePermission() {
 
 func (s *DatabaseTestSuite) expectDatabasesQuery() *sqlmock.ExpectedQuery {
 	return expectExactQuery(s.mock, "SELECT [database_id] FROM sys.databases")
+}
+
+func (s *DatabaseTestSuite) expectDatabaseNameQuery() *sqlmock.ExpectedQuery {
+	return expectExactQuery(s.mock, "SELECT [name] FROM sys.databases WHERE [database_id] = @p1").WithArgs(s.db.id)
+}
+
+func (s *DatabaseTestSuite) expectDatabaseUseQuery(dbName string) *sqlmock.ExpectedExec {
+	return expectExactExec(s.mock, "USE [%s]", dbName)
 }
 
 func (s *DatabaseTestSuite) expectDatabaseSettingQuery() *sqlmock.ExpectedQuery {
