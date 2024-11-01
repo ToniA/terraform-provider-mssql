@@ -273,12 +273,12 @@ func (s *DatabaseTestSuite) expectDatabasesQuery() *sqlmock.ExpectedQuery {
 	return expectExactQuery(s.mock, "SELECT [database_id] FROM sys.databases")
 }
 
-func (s *DatabaseTestSuite) expectDatabaseNameQuery() *sqlmock.ExpectedQuery {
-	return expectExactQuery(s.mock, "SELECT [name] FROM sys.databases WHERE [database_id] = @p1").WithArgs(s.db.id)
+func (s *DatabaseTestSuite) expectDatabaseSettingQuery() *sqlmock.ExpectedQuery {
+	return expectExactQuery(s.mock, "SELECT [name], collation_name FROM sys.databases WHERE [database_id] = @p1").WithArgs(s.db.id)
 }
 
-func (s *DatabaseTestSuite) expectDatabaseSettingQuery(dbName string) *sqlmock.ExpectedQuery {
-	return expectExactQuery(s.mock, fmt.Sprintf("USE [%s]; SELECT [name], collation_name FROM sys.databases WHERE [database_id] = @p1", dbName)).WithArgs(s.db.id)
+func (s *DatabaseTestSuite) expectDatabaseNameQuery() *sqlmock.ExpectedQuery {
+	return expectExactQuery(s.mock, "SELECT [name] FROM sys.databases WHERE [database_id] = @p1").WithArgs(s.db.id)
 }
 
 func (s *DatabaseTestSuite) expectDatabaseIdQuery() *sqlmock.ExpectedQuery {

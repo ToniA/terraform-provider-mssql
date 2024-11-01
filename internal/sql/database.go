@@ -274,21 +274,9 @@ func (db *database) RevokePermission(ctx context.Context, id GenericDatabasePrin
 
 func (db *database) getSettingsRaw(ctx context.Context) (DatabaseSettings, error) {
 	var settings DatabaseSettings
-
-	conn := db.conn.getSqlConnection(ctx)
-
-	err := conn.
-		QueryRowContext(ctx, "SELECT [name] FROM sys.databases WHERE [database_id] = @p1", db.id).
-		Scan(&settings.Name)
-
-	if err != nil {
-		return settings, fmt.Errorf("failed to fetch database name: %w", err)
-	}
-
-	err = conn.
-		QueryRowContext(ctx, fmt.Sprintf("USE [%s]; SELECT [name], collation_name FROM sys.databases WHERE [database_id] = @p1", settings.Name), db.id).
+	err := db.conn.getSqlConnection(ctx).
+		QueryRowContext(ctx, "SELECT [name], collation_name FROM sys.databases WHERE [database_id] = @p1", db.id).
 		Scan(&settings.Name, &settings.Collation)
-
 	return settings, err
 }
 
