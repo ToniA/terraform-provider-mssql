@@ -51,6 +51,7 @@ See [DefaultAzureCredential docs](https://github.com/Azure/azure-sdk-for-go/wiki
 <br/>
 #### Environment variables
 When `azure_auth` value is set to empty object (`{}`) and following environment variables are set, the env variable values will be used for authentication, taking precedence over `DefaultAzureCredential`.
+<b>Note:</b> Both `ARM_CLIENT_ID` and `ARM_CLIENT_SECRET` are required for taking precedence over `DefaultAzureCredential`, `ARM_TENANT_ID` is optional.
 - `ARM_CLIENT_ID`
 - `ARM_CLIENT_SECRET`
 - `ARM_TENANT_ID`
